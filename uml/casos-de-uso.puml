@@ -1,0 +1,70 @@
+@startuml
+
+title Catálogo de salas, wards y camas\nCaso de uso — Creación de sala y cama con control de estado operativo
+
+left to right direction
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 70
+
+actor "Administrador\nhospitalario" as Admin
+
+rectangle "Módulo: Catálogo de salas, wards y camas" {
+
+    usecase "CU-01\nCrear sala / Ward" as UC01
+    usecase "CU-02\nRegistrar cama" as UC02
+    usecase "CU-03\nDefinir estado\noperativo de cama" as UC03
+
+    usecase "Validar datos\nde la sala / Ward" as VAL1
+    usecase "Validar Ward\nexistente" as VAL2
+    usecase "Validar código\nde cama" as VAL3
+    usecase "Validar estado\noperativo" as VAL4
+}
+
+Admin --> UC01
+Admin --> UC02
+Admin --> UC03
+
+UC01 .> VAL1 : <<include>>
+
+UC02 .> VAL2 : <<include>>
+UC02 .> VAL3 : <<include>>
+UC02 .> UC03 : <<include>>
+
+UC03 .> VAL4 : <<include>>
+
+note bottom of UC01
+Modelo actual de la BD antigua:
+
+Ward representa actualmente
+una sala o unidad hospitalaria.
+
+Campos principales:
+name
+floor
+building
+end note
+
+note bottom of UC02
+La cama se relaciona
+directamente con Ward
+mediante ward_id.
+
+Campos principales:
+code
+status
+notes
+end note
+
+note bottom of UC03
+Estados actuales:
+- disponible
+- ocupada
+- limpieza
+- mantenimiento
+end note
+
+@enduml
