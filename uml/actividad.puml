@@ -1,0 +1,80 @@
+@startuml
+
+title Catálogo de salas, wards y camas\nDiagrama de actividad — Creación de sala y cama con control de estado operativo
+
+start
+
+:Administrador hospitalario\ninicia el proceso;
+
+:Ingresar datos de la sala / Ward;
+
+if (¿Datos del Ward válidos?) then (Sí)
+
+    :Guardar Ward;
+
+    if (¿Ward creado correctamente?) then (Sí)
+
+        :Ingresar datos de la cama;
+        :Seleccionar Ward existente;
+        :Ingresar código de cama;
+        :Seleccionar estado operativo;
+        :Agregar notas opcionales;
+
+        if (¿Ward existe?) then (Sí)
+
+            if (¿Código de cama válido?) then (Sí)
+
+                if (¿Estado operativo permitido?) then (Sí)
+
+                    :Relacionar cama con Ward\nmediante ward_id;
+                    :Guardar cama;
+
+                    if (¿Cama guardada correctamente?) then (Sí)
+                        :Mostrar confirmación de registro;
+                        :Resultado:\nWard y cama registrados;
+                    else (No)
+                        :Mostrar error al guardar cama;
+                    endif
+
+                else (No)
+                    :Mostrar error:\nestado operativo no permitido;
+                endif
+
+            else (No)
+                :Mostrar error:\ncódigo de cama inválido o repetido;
+            endif
+
+        else (No)
+            :Mostrar error:\nWard inexistente;
+        endif
+
+    else (No)
+        :Mostrar error al guardar Ward;
+    endif
+
+else (No)
+    :Mostrar error:\ndatos del Ward incompletos o inválidos;
+endif
+
+stop
+
+note right
+Modelo actual de la BD antigua:
+
+Ward = sala o unidad hospitalaria
+Bed = cama
+
+Relación:
+Bed.ward_id -> Ward.id
+end note
+
+note right
+Estados actuales permitidos:
+
+- disponible
+- ocupada
+- limpieza
+- mantenimiento
+end note
+
+@enduml

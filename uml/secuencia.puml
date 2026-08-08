@@ -1,0 +1,103 @@
+@startuml
+
+title Catálogo de salas, wards y camas\nDiagrama de secuencia — Creación de sala y cama con control de estado operativo
+
+actor "Administrador hospitalario" as Admin
+boundary "Interfaz del catálogo" as UI
+control "Controlador / Servicio" as Service
+database "Base de datos" as DB
+
+Admin -> UI : Solicitar creación de sala / Ward
+UI --> Admin : Mostrar formulario
+
+Admin -> UI : Ingresar name, floor y building
+UI -> Service : Enviar datos del Ward
+
+Service -> Service : Validar datos del Ward
+
+alt Datos del Ward inválidos
+    Service --> UI : Error de validación
+    UI --> Admin : Mostrar mensaje de error
+else Datos válidos
+
+    Service -> DB : INSERT Ward\n(tenant_id, name, floor, building)
+
+    alt Error al guardar Ward
+        DB --> Service : Error
+        Service --> UI : Registro no realizado
+        UI --> Admin : Mostrar error
+    else Ward creado correctamente
+
+        DB --> Service : Ward creado + id
+        Service --> UI : Confirmar creación del Ward
+        UI --> Admin : Mostrar confirmación
+
+        Admin -> UI : Solicitar registro de cama
+        UI --> Admin : Mostrar formulario de cama
+
+        Admin -> UI : Seleccionar Ward,\ningresar code, status y notes
+        UI -> Service : Enviar datos de la cama
+
+        Service -> DB : Consultar Ward por ward_id
+        DB --> Service : Resultado de búsqueda
+
+        alt Ward inexistente
+            Service --> UI : Error: Ward no existe
+            UI --> Admin : Mostrar mensaje de error
+
+        else Ward existente
+
+            Service -> Service : Validar código de cama
+            Service -> Service : Validar estado operativo
+
+            alt Código de cama inválido o repetido
+                Service --> UI : Error de código
+                UI --> Admin : Solicitar corrección
+
+            else Código válido
+
+                alt Estado no permitido
+                    Service --> UI : Error de estado operativo
+                    UI --> Admin : Mostrar estados permitidos
+
+                else Estado válido
+
+                    Service -> DB : INSERT Bed\n(tenant_id, ward_id, code, status, notes)
+
+                    alt Error al guardar cama
+                        DB --> Service : Error
+                        Service --> UI : Registro de cama fallido
+                        UI --> Admin : Mostrar mensaje de error
+
+                    else Cama registrada
+                        DB --> Service : Bed creada + id
+                        Service --> UI : Confirmación de registro
+                        UI --> Admin : Mostrar Ward y cama creados
+                    end
+
+                end
+            end
+        end
+    end
+end
+
+note over Service,DB
+Modelo utilizado: base antigua
+
+Ward = sala o unidad hospitalaria
+Bed = cama
+
+Relación:
+Bed.ward_id -> Ward.id
+end note
+
+note over Admin,UI
+Estados operativos actuales:
+
+- disponible
+- ocupada
+- limpieza
+- mantenimiento
+end note
+
+@enduml
