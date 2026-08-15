@@ -1,0 +1,57 @@
+@startuml
+
+title ASII-06 - Diseño después de aplicar SRP
+
+class WardController {
+    +registrarWard()
+    +validarWard()
+}
+
+class BedController {
+    +registrarCama()
+    +validarCama()
+}
+
+class BedStatusService {
+    +validarEstado()
+    +cambiarEstadoOperativo()
+}
+
+class Ward {
+    +tenant_id
+    +name
+    +floor
+    +building
+}
+
+class Bed {
+    +tenant_id
+    +ward_id
+    +code
+    +status
+    +notes
+}
+
+WardController --> Ward : gestiona
+BedController --> Bed : gestiona
+BedController --> Ward : valida existencia
+BedStatusService --> Bed : controla estado
+
+Ward "1" --> "*" Bed : contiene
+
+note right of WardController
+Responsabilidad:
+gestión de wards
+end note
+
+note right of BedController
+Responsabilidad:
+gestión de camas
+end note
+
+note right of BedStatusService
+Responsabilidad:
+control del estado operativo
+end note
+
+@enduml
