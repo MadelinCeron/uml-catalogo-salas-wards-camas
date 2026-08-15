@@ -1,0 +1,43 @@
+
+
+```plantuml
+@startuml
+
+title ASII-06 - Diseño antes de aplicar SRP
+
+class CatalogoController {
+    +registrarWard()
+    +validarWard()
+    +registrarCama()
+    +validarCama()
+    +validarEstado()
+    +cambiarEstadoOperativo()
+}
+
+class Ward {
+    +tenant_id
+    +name
+    +floor
+    +building
+}
+
+class Bed {
+    +tenant_id
+    +ward_id
+    +code
+    +status
+    +notes
+}
+
+CatalogoController --> Ward : gestiona
+CatalogoController --> Bed : gestiona
+
+Ward "1" --> "*" Bed : contiene
+
+note right of CatalogoController
+Una sola clase concentra
+la gestión de wards,
+camas y estados operativos.
+end note
+
+@enduml
